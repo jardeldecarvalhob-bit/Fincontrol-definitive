@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+@layer base {
+  /* Global smooth transitions for theme switching */
+  *, ::before, ::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 250ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Font Families */
+  [data-font-family="system"],
+  [data-font-family="system"] * {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  }
+
+  [data-font-family="inter"],
+  [data-font-family="inter"] * {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif !important;
+  }
+
+  [data-font-family="serif"],
+  [data-font-family="serif"] * {
+    font-family: 'Playfair Display', Georgia, Cambria, serif !important;
+  }
+
+  [data-font-family="accessible"],
+  [data-font-family="accessible"] * {
+    font-family: 'Lexend', 'Trebuchet MS', Verdana, sans-serif !important;
+  }
+
+  /* -------------------------------------------------------------
+     THEME OVERRIDES
+     ------------------------------------------------------------- */
+
+  /* 1. AMOLED THEME (Pitch Pure Black for OLED Displays) */
+  html[data-theme="amoled"],
+  html[data-theme="amoled"] body {
+    background-color: #000000 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="amoled"] .bg-white {
+    background-color: #09090b !important;
+  }
+
+  html[data-theme="amoled"] .bg-slate-50,
+  html[data-theme="amoled"] .bg-slate-100 {
+    background-color: #121215 !important;
+  }
+
+  html[data-theme="amoled"] .bg-slate-900,
+  html[data-theme="amoled"] .bg-slate-950 {
+    background-color: #000000 !important;
+  }
+
+  html[data-theme="amoled"] .bg-slate-800 {
+    background-color: #121215 !important;
+  }
+
+  html[data-theme="amoled"] .border-slate-200,
+  html[data-theme="amoled"] .border-slate-700,
+  html[data-theme="amoled"] .border-slate-800 {
+    border-color: #27272a !important;
+  }
+
+  html[data-theme="amoled"] .text-slate-900 {
+    color: #ffffff !important;
+  }
+
+  html[data-theme="amoled"] input,
+  html[data-theme="amoled"] select,
+  html[data-theme="amoled"] textarea {
+    background-color: #0d0d0f !important;
+    border-color: #27272a !important;
+    color: #ffffff !important;
+  }
+
+  /* 2. MODERN THEME (Futuristic Dark Navy Slate with Cyan/Teal Accents) */
+  html[data-theme="modern"],
+  html[data-theme="modern"] body {
+    background-color: #080d1a !important;
+    color: #f1f5f9 !important;
+  }
+
+  html[data-theme="modern"] .bg-white {
+    background-color: #0f172a !important;
+  }
+
+  html[data-theme="modern"] .bg-slate-50,
+  html[data-theme="modern"] .bg-slate-100 {
+    background-color: #1e293b !important;
+  }
+
+  html[data-theme="modern"] .bg-slate-900,
+  html[data-theme="modern"] .bg-slate-950 {
+    background-color: #030712 !important;
+  }
+
+  html[data-theme="modern"] .bg-slate-800 {
+    background-color: #131f37 !important;
+  }
+
+  html[data-theme="modern"] .border-slate-200,
+  html[data-theme="modern"] .border-slate-700,
+  html[data-theme="modern"] .border-slate-800 {
+    border-color: #1e293b !important;
+  }
+
+  html[data-theme="modern"] .text-slate-900 {
+    color: #ffffff !important;
+  }
+
+  html[data-theme="modern"] input,
+  html[data-theme="modern"] select,
+  html[data-theme="modern"] textarea {
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
+    color: #ffffff !important;
+  }
+
+  /* 3. LIGHT THEME */
+  html[data-theme="light"],
+  html[data-theme="light"] body {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+  }
+
+  /* 4. DARK THEME */
+  html[data-theme="dark"],
+  html[data-theme="dark"] body {
+    background-color: #020617 !important;
+    color: #f8fafc !important;
+  }
+
+  /* -------------------------------------------------------------
+     ACCENT COLOR SCHEMES
+     ------------------------------------------------------------- */
+  /* Ocean / Sky Blue */
+  html[data-accent="ocean"] .bg-emerald-600,
+  html[data-accent="ocean"] .bg-emerald-500 {
+    background-color: #0284c7 !important;
+  }
+
+  html[data-accent="ocean"] .hover\:bg-emerald-700:hover,
+  html[data-accent="ocean"] .hover\:bg-emerald-600:hover {
+    background-color: #0369a1 !important;
+  }
+
+  html[data-accent="ocean"] .text-emerald-600,
+  html[data-accent="ocean"] .text-emerald-500,
+  html[data-accent="ocean"] .text-emerald-400 {
+    color: #0284c7 !important;
+  }
+
+  html[data-accent="ocean"] .border-emerald-500,
+  html[data-accent="ocean"] .border-emerald-600 {
+    border-color: #0284c7 !important;
+  }
+
+  html[data-accent="ocean"] .bg-emerald-50,
+  html[data-accent="ocean"] .bg-emerald-100 {
+    background-color: #e0f2fe !important;
+  }
+
+  /* Purple / Amethyst */
+  html[data-accent="purple"] .bg-emerald-600,
+  html[data-accent="purple"] .bg-emerald-500 {
+    background-color: #9333ea !important;
+  }
+
+  html[data-accent="purple"] .hover\:bg-emerald-700:hover,
+  html[data-accent="purple"] .hover\:bg-emerald-600:hover {
+    background-color: #7e22ce !important;
+  }
+
+  html[data-accent="purple"] .text-emerald-600,
+  html[data-accent="purple"] .text-emerald-500,
+  html[data-accent="purple"] .text-emerald-400 {
+    color: #9333ea !important;
+  }
+
+  html[data-accent="purple"] .border-emerald-500,
+  html[data-accent="purple"] .border-emerald-600 {
+    border-color: #9333ea !important;
+  }
+
+  html[data-accent="purple"] .bg-emerald-50,
+  html[data-accent="purple"] .bg-emerald-100 {
+    background-color: #f3e8ff !important;
+  }
+
+  /* Amber / Gold */
+  html[data-accent="amber"] .bg-emerald-600,
+  html[data-accent="amber"] .bg-emerald-500 {
+    background-color: #d97706 !important;
+  }
+
+  html[data-accent="amber"] .hover\:bg-emerald-700:hover,
+  html[data-accent="amber"] .hover\:bg-emerald-600:hover {
+    background-color: #b45309 !important;
+  }
+
+  html[data-accent="amber"] .text-emerald-600,
+  html[data-accent="amber"] .text-emerald-500,
+  html[data-accent="amber"] .text-emerald-400 {
+    color: #d97706 !important;
+  }
+
+  html[data-accent="amber"] .border-emerald-500,
+  html[data-accent="amber"] .border-emerald-600 {
+    border-color: #d97706 !important;
+  }
+
+  html[data-accent="amber"] .bg-emerald-50,
+  html[data-accent="amber"] .bg-emerald-100 {
+    background-color: #fef3c7 !important;
+  }
+
+  /* Rose / Ruby */
+  html[data-accent="rose"] .bg-emerald-600,
+  html[data-accent="rose"] .bg-emerald-500 {
+    background-color: #e11d48 !important;
+  }
+
+  html[data-accent="rose"] .hover\:bg-emerald-700:hover,
+  html[data-accent="rose"] .hover\:bg-emerald-600:hover {
+    background-color: #be123c !important;
+  }
+
+  html[data-accent="rose"] .text-emerald-600,
+  html[data-accent="rose"] .text-emerald-500,
+  html[data-accent="rose"] .text-emerald-400 {
+    color: #e11d48 !important;
+  }
+
+  html[data-accent="rose"] .border-emerald-500,
+  html[data-accent="rose"] .border-emerald-600 {
+    border-color: #e11d48 !important;
+  }
+
+  html[data-accent="rose"] .bg-emerald-50,
+  html[data-accent="rose"] .bg-emerald-100 {
+    background-color: #ffe4e6 !important;
+  }
+}
