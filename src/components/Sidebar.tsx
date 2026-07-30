@@ -13,7 +13,6 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
-import logoImg from '/logo.png';
 
 export type TabType =
   | 'dashboard'
@@ -62,7 +61,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Backdrop Overlay */}
       {isOpenMobile && (
         <div
           onClick={onCloseMobile}
@@ -70,18 +68,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
-      {/* Sidebar Navigation Panel */}
       <aside
         className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col border-r border-slate-800 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:z-auto ${
           isOpenMobile ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Brand Header */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0 border border-emerald-500/30">
               <img
-                src={logoImg}
+                src="/logo.png"
                 alt="FinControl Logo"
                 className="w-full h-full object-contain"
               />
@@ -99,7 +95,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* User Card */}
         <div className="mx-4 mt-4 p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm border border-emerald-500/30 flex-shrink-0">
@@ -123,7 +118,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
 
-        {/* Navigation Items */}
         <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
             const isActive = activeTab === item.id;
@@ -151,7 +145,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </nav>
 
-        {/* Footer info */}
         <div className="p-4 border-t border-slate-800 text-center">
           <p className="text-[11px] text-slate-500">FinControl v2.5 • Offline First</p>
         </div>
