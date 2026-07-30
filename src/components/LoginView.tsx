@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Lock, Mail, User, ArrowRight, ShieldCheck, CheckCircle2, Loader2 } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
 import { supabaseService } from '../services/supabaseService';
 
 interface LoginViewProps {
@@ -95,11 +94,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md bg-slate-900/90 border border-slate-800/80 backdrop-blur-md rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
-        {/* Header with Logo */}
+        {/* Header with Logo apontando para public/logo.png */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-2.5 bg-white rounded-2xl border border-slate-700/60 shadow-xl mb-1">
             <img
-              src={logoImg}
+              src="/logo.png"
               alt="FinControl Logo"
               className="w-20 h-20 object-contain rounded-xl"
             />
