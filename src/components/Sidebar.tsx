@@ -13,7 +13,7 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
+import logoImg from '/logo.png';
 
 export type TabType =
   | 'dashboard'
