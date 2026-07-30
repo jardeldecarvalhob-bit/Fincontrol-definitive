@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Lock, Mail, User, ArrowRight, ShieldCheck, CheckCircle2, Loader2 } from 'lucide-react';
-import logoImg from '/logo.png';
 import { supabaseService } from '../services/supabaseService';
 
 interface LoginViewProps {
@@ -46,7 +45,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
     try {
       if (isRegister) {
-        // Supabase SignUp
         const data = await supabaseService.signUp(email.trim(), password, name.trim());
         const user = data.user;
         const displayName = name.trim();
@@ -54,14 +52,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         if (data.session) {
           onLogin(displayName, email.trim());
         } else if (user) {
-          // If Supabase requires email confirmation
           setSuccessMessage('Conta criada com sucesso! Verifique seu e-mail ou faça login para continuar.');
           setIsRegister(false);
         } else {
           onLogin(displayName, email.trim());
         }
       } else {
-        // Supabase SignIn
         const data = await supabaseService.signIn(email.trim(), password);
         const user = data.user;
         const displayName = user?.user_metadata?.full_name || name.trim() || email.split('@')[0] || 'Usuário';
@@ -71,7 +67,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       console.error('Supabase Auth error:', err);
       let msg = err?.message || 'Ocorreu um erro ao processar sua solicitação.';
       
-      // Friendly translations for Portuguese
       if (msg.includes('Invalid login credentials')) {
         msg = 'E-mail ou senha incorretos. Por favor, verifique os dados digitados.';
       } else if (msg.includes('User already registered')) {
@@ -90,16 +85,14 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
-      {/* Ambient Background Glowing Orbs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md bg-slate-900/90 border border-slate-800/80 backdrop-blur-md rounded-3xl p-8 shadow-2xl relative z-10 space-y-6">
-        {/* Header with Logo */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-2.5 bg-white rounded-2xl border border-slate-700/60 shadow-xl mb-1">
             <img
-              src={logoImg}
+              src="/logo.png"
               alt="FinControl Logo"
               className="w-20 h-20 object-contain rounded-xl"
               draggable={false}
@@ -113,7 +106,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </div>
         </div>
 
-        {/* Tab Switcher: Login / Criar Conta */}
         <div className="grid grid-cols-2 p-1 bg-slate-800/80 rounded-2xl border border-slate-700/50 text-xs font-bold">
           <button
             type="button"
@@ -149,7 +141,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </button>
         </div>
 
-        {/* Alerts */}
         {errorMessage && (
           <div className="p-3 bg-rose-950/60 border border-rose-800/80 text-rose-300 rounded-xl text-xs font-semibold">
             {errorMessage}
@@ -162,7 +153,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {isRegister && (
             <div>
@@ -251,7 +241,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </button>
         </form>
 
-        {/* Features badges */}
         <div className="pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[11px] text-slate-400">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
