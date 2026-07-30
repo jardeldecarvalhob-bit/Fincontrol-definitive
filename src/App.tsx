@@ -206,10 +206,51 @@ export default function App() {
   // Add / Edit Transaction Lógica
   const handleSaveTransaction = (txData: Partial<Transaction>) => {
     let updatedTxs = [...transactions];
+    let updatedAccs = [...accounts];
+    let updatedCards = [...creditCards];
 
     if (txData.id) {
-      // Editar existente
-      updatedTxs = updatedTxs.map((t) => (t.id === txData.id ? ({ ...t, ...txData } as Transaction) : t));
+      // Editar existente -> Reverter o impacto anterior se estava pago
+      const oldTx = transactions.find((t) => t.id === txData.id);
+      if (oldTx && oldTx.status === 'paid') {
+        if (oldTx.paymentMethod === 'credit_card' && oldTx.creditCardId) {
+          updatedCards = updatedCards.map((c) =>
+            c.id === oldTx.creditCardId ? { ...c, currentInvoice: Math.max(0, c.currentInvoice - oldTx.amount) } : c
+          );
+        } else {
+          updatedAccs = updatedAccs.map((a) => {
+            if (a.id === oldTx.accountId) {
+              const revDiff = oldTx.type === 'income' ? -oldTx.amount : oldTx.amount;
+              return { ...a, balance: a.balance + revDiff };
+            }
+            return a;
+          });
+        }
+      }
+
+      const fullTx: Transaction = {
+        ...oldTx,
+        ...txData,
+      } as Transaction;
+
+      updatedTxs = updatedTxs.map((t) => (t.id === txData.id ? fullTx : t));
+
+      // Aplicar novo impacto se pago
+      if (fullTx.status === 'paid') {
+        if (fullTx.paymentMethod === 'credit_card' && fullTx.creditCardId) {
+          updatedCards = updatedCards.map((c) =>
+            c.id === fullTx.creditCardId ? { ...c, currentInvoice: c.currentInvoice + fullTx.amount } : c
+          );
+        } else {
+          updatedAccs = updatedAccs.map((a) => {
+            if (a.id === fullTx.accountId) {
+              const diff = fullTx.type === 'income' ? fullTx.amount : -fullTx.amount;
+              return { ...a, balance: a.balance + diff };
+            }
+            return a;
+          });
+        }
+      }
     } else {
       // Criar novo
       const newTx: Transaction = {
@@ -234,27 +275,23 @@ export default function App() {
       // Ajustar saldo da conta se 'paid'
       if (newTx.status === 'paid') {
         if (newTx.paymentMethod === 'credit_card' && newTx.creditCardId) {
-          // Aumentar fatura do cartão
-          setCreditCards((cards) =>
-            cards.map((c) =>
-              c.id === newTx.creditCardId ? { ...c, currentInvoice: c.currentInvoice + newTx.amount } : c
-            )
+          updatedCards = updatedCards.map((c) =>
+            c.id === newTx.creditCardId ? { ...c, currentInvoice: c.currentInvoice + newTx.amount } : c
           );
         } else {
-          // Alterar saldo da conta
-          setAccounts((accs) =>
-            accs.map((a) => {
-              if (a.id === newTx.accountId) {
-                const diff = newTx.type === 'income' ? newTx.amount : -newTx.amount;
-                return { ...a, balance: a.balance + diff };
-              }
-              return a;
-            })
-          );
+          updatedAccs = updatedAccs.map((a) => {
+            if (a.id === newTx.accountId) {
+              const diff = newTx.type === 'income' ? newTx.amount : -newTx.amount;
+              return { ...a, balance: a.balance + diff };
+            }
+            return a;
+          });
         }
       }
     }
 
+    saveAllCreditCards(updatedCards);
+    saveAllAccounts(updatedAccs);
     saveAllTransactions(updatedTxs);
   };
 

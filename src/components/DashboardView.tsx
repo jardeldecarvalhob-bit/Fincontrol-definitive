@@ -107,8 +107,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     };
   });
 
-  // Filtro do gráfico por Categoria: 'all' | 'expense' | 'income'
-  const [categoryViewMode, setCategoryViewMode] = useState<'all' | 'expense' | 'income'>('all');
+  // Filtro do gráfico por Categoria: padrão 'expense' para focar nas despesas por categoria
+  const [categoryViewMode, setCategoryViewMode] = useState<'all' | 'expense' | 'income'>('expense');
 
   // Paleta de Tons de Verde com alto contraste para Categorias de Receita
   const INCOME_GREEN_SHADES = [
@@ -125,7 +125,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   ];
 
   // Preparando Dados para o Gráfico por Categoria (Rosca)
-  const categoryTotalsMap: { [catId: string]: { amount: number; type: 'income' | 'expense' } } = {};
+  const categoryTotalsMap: { [key: string]: { catId: string; amount: number; type: 'income' | 'expense' } } = {};
   currentMonthTransactions
     .filter((tx) => {
       if (tx.status !== 'paid') return false;
@@ -134,17 +134,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       return tx.type === 'expense' || tx.type === 'income';
     })
     .forEach((tx) => {
-      if (!categoryTotalsMap[tx.categoryId]) {
-        categoryTotalsMap[tx.categoryId] = { amount: 0, type: tx.type as 'income' | 'expense' };
+      const compositeKey = `${tx.categoryId}_${tx.type}`;
+      if (!categoryTotalsMap[compositeKey]) {
+        categoryTotalsMap[compositeKey] = { catId: tx.categoryId, amount: 0, type: tx.type as 'income' | 'expense' };
       }
-      categoryTotalsMap[tx.categoryId].amount += tx.amount;
+      categoryTotalsMap[compositeKey].amount += tx.amount;
     });
 
   let incomeColorIndex = 0;
   const pieData = Object.keys(categoryTotalsMap)
-    .map((catId) => {
-      const cat = categories.find((c) => c.id === catId);
-      const info = categoryTotalsMap[catId];
+    .map((key) => {
+      const info = categoryTotalsMap[key];
+      const cat = categories.find((c) => c.id === info.catId);
 
       let color = cat ? cat.color : '#94a3b8';
       if (info.type === 'income') {
@@ -154,7 +155,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       }
 
       return {
-        id: catId,
+        id: key,
         name: cat ? cat.name : (info.type === 'income' ? 'Outras Receitas' : 'Outros Gastos'),
         value: info.amount,
         type: info.type,

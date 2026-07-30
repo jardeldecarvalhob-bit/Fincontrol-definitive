@@ -36,6 +36,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [isInstallment, setIsInstallment] = useState(false);
   const [installmentTotal, setInstallmentTotal] = useState(2);
 
+  const handleTypeChange = (newType: TransactionType) => {
+    setType(newType);
+    if (newType !== 'transfer') {
+      const validCats = categories.filter((c) => c.type === (newType === 'income' ? 'income' : 'expense'));
+      const isCurrentValid = validCats.some((c) => c.id === categoryId);
+      if (!isCurrentValid && validCats.length > 0) {
+        setCategoryId(validCats[0].id);
+      }
+    }
+  };
+
   useEffect(() => {
     if (initialTransaction) {
       setType(initialTransaction.type);
@@ -60,7 +71,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setType('expense');
       setDescription('');
       setAmount(0);
-      setCategoryId(categories.find((c) => c.type === 'expense')?.id || categories[0]?.id || '');
+      const defaultExpenseCat = categories.find((c) => c.type === 'expense')?.id || categories[0]?.id || '';
+      setCategoryId(defaultExpenseCat);
       setAccountId(accounts[0]?.id || '');
       setCreditCardId('');
       setTargetAccountId(accounts[1]?.id || '');
@@ -84,12 +96,26 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       .map((t) => t.trim())
       .filter((t) => t !== '');
 
+    // Garante validação estrita da categoria de acordo com o tipo
+    let finalCatId = categoryId;
+    if (type === 'income') {
+      const isIncomeCat = categories.some((c) => c.id === categoryId && c.type === 'income');
+      if (!isIncomeCat) {
+        finalCatId = categories.find((c) => c.type === 'income')?.id || 'cat-inc-1';
+      }
+    } else if (type === 'expense') {
+      const isExpenseCat = categories.some((c) => c.id === categoryId && c.type === 'expense');
+      if (!isExpenseCat) {
+        finalCatId = categories.find((c) => c.type === 'expense')?.id || 'cat-exp-1';
+      }
+    }
+
     onSave({
       id: initialTransaction?.id,
       description,
-      amount,
-      type,
-      categoryId: categoryId || categories[0]?.id,
+      amount: Math.abs(amount),
+      type: type,
+      categoryId: finalCatId,
       accountId: paymentMethod === 'credit_card' ? (creditCards.find((c) => c.id === creditCardId)?.accountId || accountId) : accountId,
       creditCardId: paymentMethod === 'credit_card' ? creditCardId : undefined,
       targetAccountId: type === 'transfer' ? targetAccountId : undefined,
@@ -125,7 +151,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         <div className="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-bold">
           <button
             type="button"
-            onClick={() => setType('expense')}
+            onClick={() => handleTypeChange('expense')}
             className={`py-2 rounded-lg transition-all ${
               type === 'expense' ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
             }`}
@@ -134,7 +160,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setType('income')}
+            onClick={() => handleTypeChange('income')}
             className={`py-2 rounded-lg transition-all ${
               type === 'income' ? 'bg-teal-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
             }`}
@@ -143,7 +169,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setType('transfer')}
+            onClick={() => handleTypeChange('transfer')}
             className={`py-2 rounded-lg transition-all ${
               type === 'transfer' ? 'bg-slate-700 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
             }`}
