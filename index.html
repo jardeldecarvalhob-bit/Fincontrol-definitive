@@ -19,13 +19,13 @@
 
     <!-- PWA & Theme Colors -->
     <meta name="theme-color" content="#00C7C7" />
-    <meta name="background-color" content="#000000" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- Apple iOS PWA Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="FinControl" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
 
     <!-- Microsoft Windows Meta Tags -->
     <meta name="msapplication-TileColor" content="#000000" />
@@ -37,8 +37,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="mask-icon" href="/maskable-icon-512x512.png" color="#00C7C7" />
 
-    <!-- Web Application Manifest -->
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- Web Application Manifest (Corrigido de .webmanifest para .json) -->
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,5 +48,17 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Script obrigatório para registrar o Service Worker e habilitar instalação no Android -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/sw.js')
+            .then((reg) => console.log('SW registrado:', reg.scope))
+            .catch((err) => console.error('Erro ao registrar SW:', err));
+        });
+      }
+    </script>
   </body>
 </html>
