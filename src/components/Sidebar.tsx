@@ -13,7 +13,6 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
 
 export type TabType =
   | 'dashboard'
@@ -81,7 +80,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0 border border-emerald-500/30">
               <img
-                src={logoImg}
+                src="/logo.png"
                 alt="FinControl Logo"
                 className="w-full h-full object-contain"
               />
