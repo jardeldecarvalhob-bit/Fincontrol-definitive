@@ -13,7 +13,8 @@ import {
   X,
   LogOut,
 } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
+
+const pwaLogo = '/android-chrome-192x192.png';
 
 export type TabType =
   | 'dashboard'
@@ -81,9 +82,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white p-1 shadow-md flex items-center justify-center overflow-hidden flex-shrink-0 border border-emerald-500/30">
               <img
-                src={logoImg}
+                src={pwaLogo}
                 alt="FinControl Logo"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain rounded-lg"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/apple-touch-icon.png';
+                }}
               />
             </div>
             <div>

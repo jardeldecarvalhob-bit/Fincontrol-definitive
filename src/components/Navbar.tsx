@@ -39,13 +39,23 @@ export const Navbar: React.FC<NavbarProps> = ({
           <Menu className="w-5 h-5" />
         </button>
 
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            {activeTabTitle}
-          </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
-            Gestão Financeira Pessoal &amp; Empresarial Leve
-          </p>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/android-chrome-192x192.png"
+            alt="FinControl Logo"
+            className="w-7 h-7 object-contain rounded-lg border border-slate-200 dark:border-slate-800 lg:hidden"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = '/apple-touch-icon.png';
+            }}
+          />
+          <div>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              {activeTabTitle}
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+              Gestão Financeira Pessoal &amp; Empresarial Leve
+            </p>
+          </div>
         </div>
       </div>
 
