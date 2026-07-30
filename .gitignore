@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Preservar pasta estática public e imagens de assets
+!public/
+!public/*
+!public/logo.png
