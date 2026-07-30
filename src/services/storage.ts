@@ -10,11 +10,11 @@ import {
 } from '../data/initialData';
 
 const KEYS = {
-  TRANSACTIONS: 'fincontrol_transactions_v1',
-  ACCOUNTS: 'fincontrol_accounts_v1',
-  CREDIT_CARDS: 'fincontrol_credit_cards_v1',
+  TRANSACTIONS: 'fincontrol_transactions_v2',
+  ACCOUNTS: 'fincontrol_accounts_v2',
+  CREDIT_CARDS: 'fincontrol_credit_cards_v2',
   CATEGORIES: 'fincontrol_categories_v1',
-  GOALS: 'fincontrol_goals_v1',
+  GOALS: 'fincontrol_goals_v2',
   BUDGETS: 'fincontrol_budgets_v1',
   PREFERENCES: 'fincontrol_preferences_v1',
 };

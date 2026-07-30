@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Lock, Mail, User, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import logoImg from '/logo.png';
+import { Lock, Mail, User, ArrowRight, ShieldCheck, CheckCircle2, Loader2 } from 'lucide-react';
+import logoImg from '../assets/logo.jpg';
+import { supabaseService } from '../services/supabaseService';
 
 interface LoginViewProps {
   onLogin: (userName: string, userEmail: string) => void;
@@ -13,10 +14,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
 
     if (!email.trim() || !password.trim()) {
       setErrorMessage('Por favor, preencha todos os campos obrigatórios.');
@@ -36,16 +40,57 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         setErrorMessage('As senhas não coincidem. Digite novamente.');
         return;
       }
+    }
 
-      onLogin(name.trim(), email.trim());
-    } else {
-      const displayName = name.trim() || email.split('@')[0] || 'Usuário';
-      onLogin(displayName, email.trim());
+    setIsLoading(true);
+
+    try {
+      if (isRegister) {
+        // Supabase SignUp
+        const data = await supabaseService.signUp(email.trim(), password, name.trim());
+        const user = data.user;
+        const displayName = name.trim();
+        
+        if (data.session) {
+          onLogin(displayName, email.trim());
+        } else if (user) {
+          // If Supabase requires email confirmation
+          setSuccessMessage('Conta criada com sucesso! Verifique seu e-mail ou faça login para continuar.');
+          setIsRegister(false);
+        } else {
+          onLogin(displayName, email.trim());
+        }
+      } else {
+        // Supabase SignIn
+        const data = await supabaseService.signIn(email.trim(), password);
+        const user = data.user;
+        const displayName = user?.user_metadata?.full_name || name.trim() || email.split('@')[0] || 'Usuário';
+        onLogin(displayName, email.trim());
+      }
+    } catch (err: any) {
+      console.error('Supabase Auth error:', err);
+      let msg = err?.message || 'Ocorreu um erro ao processar sua solicitação.';
+      
+      // Friendly translations for Portuguese
+      if (msg.includes('Invalid login credentials')) {
+        msg = 'E-mail ou senha incorretos. Por favor, verifique os dados digitados.';
+      } else if (msg.includes('User already registered')) {
+        msg = 'Este e-mail já está cadastrado. Tente fazer login ou escolha outro e-mail.';
+      } else if (msg.includes('Password should be at least')) {
+        msg = 'A senha deve conter pelo menos 6 caracteres.';
+      } else if (msg.includes('Email not confirmed')) {
+        msg = 'E-mail ainda não confirmado. Por favor, verifique sua caixa de entrada.';
+      }
+
+      setErrorMessage(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
+      {/* Ambient Background Glowing Orbs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -57,18 +102,12 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
               src={logoImg}
               alt="FinControl Logo"
               className="w-20 h-20 object-contain rounded-xl"
-              draggable={false}
             />
           </div>
-
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white">
-              FinControl
-            </h1>
+            <h1 className="text-2xl font-black tracking-tight text-white">FinControl</h1>
             <p className="text-xs text-slate-400 mt-1">
-              {isRegister
-                ? 'Crie sua conta para começar a organizar suas finanças'
-                : 'Acesse seu painel financeiro pessoal e empresarial'}
+              {isRegister ? 'Crie sua conta para sincronizar suas finanças no Supabase' : 'Acesse seu painel financeiro sincronizado no Supabase'}
             </p>
           </div>
         </div>
@@ -77,9 +116,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         <div className="grid grid-cols-2 p-1 bg-slate-800/80 rounded-2xl border border-slate-700/50 text-xs font-bold">
           <button
             type="button"
+            disabled={isLoading}
             onClick={() => {
               setIsRegister(false);
               setErrorMessage('');
+              setSuccessMessage('');
             }}
             className={`py-2.5 rounded-xl transition-all ${
               !isRegister
@@ -89,12 +130,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           >
             Entrar
           </button>
-
           <button
             type="button"
+            disabled={isLoading}
             onClick={() => {
               setIsRegister(true);
               setErrorMessage('');
+              setSuccessMessage('');
             }}
             className={`py-2.5 rounded-xl transition-all ${
               isRegister
@@ -106,18 +148,24 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </button>
         </div>
 
+        {/* Alerts */}
         {errorMessage && (
           <div className="p-3 bg-rose-950/60 border border-rose-800/80 text-rose-300 rounded-xl text-xs font-semibold">
             {errorMessage}
           </div>
         )}
 
+        {successMessage && (
+          <div className="p-3 bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 rounded-xl text-xs font-semibold">
+            {successMessage}
+          </div>
+        )}
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {isRegister && (
             <div>
-              <label className="block text-slate-300 font-semibold mb-1.5">
-                Nome Completo
-              </label>
+              <label className="block text-slate-300 font-semibold mb-1.5">Nome Completo</label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
@@ -125,17 +173,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                   required={isRegister}
                   placeholder="Seu nome"
                   value={name}
+                  disabled={isLoading}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-60"
                 />
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1.5">
-              E-mail
-            </label>
+            <label className="block text-slate-300 font-semibold mb-1.5">E-mail</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
               <input
@@ -143,16 +190,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 required
                 placeholder="seu.email@exemplo.com"
                 value={email}
+                disabled={isLoading}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-60"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1.5">
-              Senha
-            </label>
+            <label className="block text-slate-300 font-semibold mb-1.5">Senha</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
               <input
@@ -160,17 +206,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 required
                 placeholder="••••••••"
                 value={password}
+                disabled={isLoading}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-60"
               />
             </div>
           </div>
 
           {isRegister && (
             <div>
-              <label className="block text-slate-300 font-semibold mb-1.5">
-                Confirmar Senha
-              </label>
+              <label className="block text-slate-300 font-semibold mb-1.5">Confirmar Senha</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
@@ -178,8 +223,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                   required={isRegister}
                   placeholder="••••••••"
                   value={confirmPassword}
+                  disabled={isLoading}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-slate-800/60 border border-slate-700/70 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors disabled:opacity-60"
                 />
               </div>
             </div>
@@ -187,25 +233,32 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all text-sm mt-2"
+            disabled={isLoading}
+            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all text-sm mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <span>
-              {isRegister
-                ? 'Concluir Cadastro e Entrar'
-                : 'Acessar FinControl'}
-            </span>
-            <ArrowRight className="w-4 h-4" />
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Processando...</span>
+              </>
+            ) : (
+              <>
+                <span>{isRegister ? 'Concluir Cadastro e Entrar' : 'Acessar FinControl'}</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 
+        {/* Features badges */}
         <div className="pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[11px] text-slate-400">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>100% Gratuito e Offline</span>
+            <span>Banco Supabase Nuvem</span>
           </div>
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Dados Privados no Dispositivo</span>
+            <span>Autenticação Segura</span>
           </div>
         </div>
       </div>

@@ -16,12 +16,14 @@ import { LoginView } from './components/LoginView';
 
 import { Transaction, Account, CreditCard, Category, Goal, Budget, UserPreferences } from './types';
 import { storageService } from './services/storage';
+import { supabaseService } from './services/supabaseService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Authentication State
+  // Supabase User State & Authentication
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('fincontrol_auth') === 'true';
   });
@@ -39,6 +41,80 @@ export default function App() {
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+
+  // Subscribe to Supabase Auth state changes & synchronize database data
+  useEffect(() => {
+    const { data: authListener } = supabaseService.onAuthStateChange(async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        setIsAuthenticated(true);
+        localStorage.setItem('fincontrol_auth', 'true');
+
+        const userEmail = user.email || preferences.userEmail || '';
+        const userName =
+          user.user_metadata?.full_name || preferences.userName || userEmail.split('@')[0] || 'Usuário';
+
+        // Attempt fetching synced database records for current authenticated user
+        const [sbTxs, sbAccs, sbCards, sbGoals, sbBudgets, sbPrefs] = await Promise.all([
+          supabaseService.fetchTransactions(user.id),
+          supabaseService.fetchAccounts(user.id),
+          supabaseService.fetchCreditCards(user.id),
+          supabaseService.fetchGoals(user.id),
+          supabaseService.fetchBudgets(user.id),
+          supabaseService.fetchPreferences(user.id),
+        ]);
+
+        if (sbTxs && sbTxs.length > 0) {
+          setTransactions(sbTxs);
+          storageService.saveTransactions(sbTxs);
+        } else if (transactions.length > 0) {
+          supabaseService.saveTransactions(user.id, transactions);
+        }
+
+        if (sbAccs && sbAccs.length > 0) {
+          setAccounts(sbAccs);
+          storageService.saveAccounts(sbAccs);
+        } else if (accounts.length > 0) {
+          supabaseService.saveAccounts(user.id, accounts);
+        }
+
+        if (sbCards && sbCards.length > 0) {
+          setCreditCards(sbCards);
+          storageService.saveCreditCards(sbCards);
+        } else if (creditCards.length > 0) {
+          supabaseService.saveCreditCards(user.id, creditCards);
+        }
+
+        if (sbGoals && sbGoals.length > 0) {
+          setGoals(sbGoals);
+          storageService.saveGoals(sbGoals);
+        } else if (goals.length > 0) {
+          supabaseService.saveGoals(user.id, goals);
+        }
+
+        if (sbBudgets && sbBudgets.length > 0) {
+          setBudgets(sbBudgets);
+          storageService.saveBudgets(sbBudgets);
+        } else if (budgets.length > 0) {
+          supabaseService.saveBudgets(user.id, budgets);
+        }
+
+        if (sbPrefs) {
+          setPreferences(sbPrefs);
+          storageService.savePreferences(sbPrefs);
+        } else {
+          const updatedPref = { ...preferences, userName, userEmail };
+          setPreferences(updatedPref);
+          storageService.savePreferences(updatedPref);
+          supabaseService.savePreferences(user.id, updatedPref);
+        }
+      }
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
 
   // Sync theme, accent color, font family, and font size with user preferences across the entire application
   useEffect(() => {
@@ -64,36 +140,54 @@ export default function App() {
     document.documentElement.style.fontSize = sizeMap[preferences.fontSize || 'medium'] || '16px';
   }, [preferences.theme, preferences.accentColor, preferences.fontFamily, preferences.fontSize]);
 
-  // Persist handlers
+  // Persist handlers (Syncs both Local Storage and Supabase)
   const saveAllTransactions = (txs: Transaction[]) => {
     setTransactions(txs);
     storageService.saveTransactions(txs);
+    if (currentUser?.id) {
+      supabaseService.saveTransactions(currentUser.id, txs);
+    }
   };
 
   const saveAllAccounts = (accs: Account[]) => {
     setAccounts(accs);
     storageService.saveAccounts(accs);
+    if (currentUser?.id) {
+      supabaseService.saveAccounts(currentUser.id, accs);
+    }
   };
 
   const saveAllCreditCards = (cards: CreditCard[]) => {
     setCreditCards(cards);
     storageService.saveCreditCards(cards);
+    if (currentUser?.id) {
+      supabaseService.saveCreditCards(currentUser.id, cards);
+    }
   };
 
   const saveAllGoals = (gls: Goal[]) => {
     setGoals(gls);
     storageService.saveGoals(gls);
+    if (currentUser?.id) {
+      supabaseService.saveGoals(currentUser.id, gls);
+    }
   };
 
   const saveAllBudgets = (bdgs: Budget[]) => {
     setBudgets(bdgs);
     storageService.saveBudgets(bdgs);
+    if (currentUser?.id) {
+      supabaseService.saveBudgets(currentUser.id, bdgs);
+    }
   };
 
   const updatePreferences = (updated: Partial<UserPreferences>) => {
     const next = { ...preferences, ...updated };
     setPreferences(next);
     storageService.savePreferences(next);
+    if (currentUser?.id) {
+      supabaseService.savePreferences(currentUser.id, next);
+    }
   };
 
   const handleLogin = (userName: string, userEmail: string) => {
@@ -102,7 +196,9 @@ export default function App() {
     localStorage.setItem('fincontrol_auth', 'true');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabaseService.signOut();
+    setCurrentUser(null);
     setIsAuthenticated(false);
     localStorage.removeItem('fincontrol_auth');
   };
@@ -187,6 +283,9 @@ export default function App() {
 
     const nextTxs = transactions.filter((t) => t.id !== id);
     saveAllTransactions(nextTxs);
+    if (currentUser?.id) {
+      supabaseService.deleteTransaction(currentUser.id, id);
+    }
   };
 
   // Toggle Pago / Pendente
@@ -263,6 +362,9 @@ export default function App() {
   const handleDeleteAccount = (id: string) => {
     if (accounts.length <= 1) return;
     saveAllAccounts(accounts.filter((a) => a.id !== id));
+    if (currentUser?.id) {
+      supabaseService.deleteAccount(currentUser.id, id);
+    }
   };
 
   // Credit Card Operations
@@ -290,6 +392,9 @@ export default function App() {
     const updatedTxs = transactions.filter((t) => t.creditCardId !== id);
     saveAllCreditCards(updatedCards);
     saveAllTransactions(updatedTxs);
+    if (currentUser?.id) {
+      supabaseService.deleteCreditCard(currentUser.id, id);
+    }
   };
 
   const handleDeleteInvoice = (cardId: string) => {
@@ -354,6 +459,9 @@ export default function App() {
 
   const handleDeleteGoal = (id: string) => {
     saveAllGoals(goals.filter((g) => g.id !== id));
+    if (currentUser?.id) {
+      supabaseService.deleteGoal(currentUser.id, id);
+    }
   };
 
   const handleUpdateGoalAmount = (
