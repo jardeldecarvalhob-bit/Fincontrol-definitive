@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Lock, Mail, User, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import logoImg from '../assets/logo.jpg';
 
 interface LoginViewProps {
   onLogin: (userName: string, userEmail: string) => void;
@@ -36,10 +35,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         setErrorMessage('As senhas não coincidem. Digite novamente.');
         return;
       }
-      // Register success
+
       onLogin(name.trim(), email.trim());
     } else {
-      // Login success
       const displayName = name.trim() || email.split('@')[0] || 'Usuário';
       onLogin(displayName, email.trim());
     }
@@ -47,7 +45,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
-      {/* Subtle Ambient Background Glowing Orbs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -56,15 +53,21 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-2.5 bg-white rounded-2xl border border-slate-700/60 shadow-xl mb-1">
             <img
-              src={logoImg}
+              src="/logo.png"
               alt="FinControl Logo"
               className="w-20 h-20 object-contain rounded-xl"
+              draggable={false}
             />
           </div>
+
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-white">FinControl</h1>
+            <h1 className="text-2xl font-black tracking-tight text-white">
+              FinControl
+            </h1>
             <p className="text-xs text-slate-400 mt-1">
-              {isRegister ? 'Crie sua conta para começar a organizar suas finanças' : 'Acesse seu painel financeiro pessoal e empresarial'}
+              {isRegister
+                ? 'Crie sua conta para começar a organizar suas finanças'
+                : 'Acesse seu painel financeiro pessoal e empresarial'}
             </p>
           </div>
         </div>
@@ -85,6 +88,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           >
             Entrar
           </button>
+
           <button
             type="button"
             onClick={() => {
@@ -101,18 +105,18 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </button>
         </div>
 
-        {/* Error Alert */}
         {errorMessage && (
           <div className="p-3 bg-rose-950/60 border border-rose-800/80 text-rose-300 rounded-xl text-xs font-semibold">
             {errorMessage}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {isRegister && (
             <div>
-              <label className="block text-slate-300 font-semibold mb-1.5">Nome Completo</label>
+              <label className="block text-slate-300 font-semibold mb-1.5">
+                Nome Completo
+              </label>
               <div className="relative">
                 <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
@@ -128,7 +132,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           )}
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1.5">E-mail</label>
+            <label className="block text-slate-300 font-semibold mb-1.5">
+              E-mail
+            </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
               <input
@@ -143,7 +149,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </div>
 
           <div>
-            <label className="block text-slate-300 font-semibold mb-1.5">Senha</label>
+            <label className="block text-slate-300 font-semibold mb-1.5">
+              Senha
+            </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
               <input
@@ -159,7 +167,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
           {isRegister && (
             <div>
-              <label className="block text-slate-300 font-semibold mb-1.5">Confirmar Senha</label>
+              <label className="block text-slate-300 font-semibold mb-1.5">
+                Confirmar Senha
+              </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
@@ -178,12 +188,15 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
             type="submit"
             className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold rounded-xl shadow-lg shadow-emerald-950/60 flex items-center justify-center gap-2 transition-all text-sm mt-2"
           >
-            <span>{isRegister ? 'Concluir Cadastro e Entrar' : 'Acessar FinControl'}</span>
+            <span>
+              {isRegister
+                ? 'Concluir Cadastro e Entrar'
+                : 'Acessar FinControl'}
+            </span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
-        {/* Features badges */}
         <div className="pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[11px] text-slate-400">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
