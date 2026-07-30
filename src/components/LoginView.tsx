@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, Mail, User, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
-
-const pwaLogo = '/android-chrome-192x192.png';
+import logoImg from '../assets/logo.jpg';
 
 interface LoginViewProps {
   onLogin: (userName: string, userEmail: string) => void;
@@ -57,12 +56,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center p-2.5 bg-white rounded-2xl border border-slate-700/60 shadow-xl mb-1">
             <img
-              src={pwaLogo}
+              src={logoImg}
               alt="FinControl Logo"
               className="w-20 h-20 object-contain rounded-xl"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = '/apple-touch-icon.png';
-              }}
             />
           </div>
           <div>
